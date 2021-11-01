@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <link rel="stylesheet" type="text/css" href="styles.css"> -->
+    <style>
+      .picker {
+        width: 40px;
+        height: 20px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .picker input {
+        width: 1px;
+        height: 1px;
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    Pick a color:
+
+    <div class="picker" style="background-color: #000">
+      <input type="color" />
+    </div>
+
+    <div>
+      <button class="trigger">Open picker</button>
+      <button class="eye-dropper-trigger">Open EyeDropper</button>
+    </div>
+
+    <script>
+      const picker = document.querySelector('.picker');
+      const input = document.querySelector('input[type=color]');
+
+      input.addEventListener('change', (e) => {
+        console.log(e.target.value);
+        setColor(e.target.value);
+      });
+
+      document.querySelector('button.trigger').addEventListener('click', () => {
+        input.click();
+      });
+
+      document.querySelector('button.eye-dropper-trigger').addEventListener(
+        'click',
+        (() => {
+          let ac = null;
+          let dropper = null;
+          if (isEyeDropperSupported()) {
+            ac = new AbortController();
+            dropper = new EyeDropper({ signal: ac.signal });
+          }
+          return () => {
+            if (!dropper) {
+              alert("Your browser does't support EyeDropper API");
+              return;
+            }
+            dropper.open().then((color) => {
+              console.log('EyeDropper picked: ', color);
+              setColor(color.sRGBHex);
+            });
+          };
+        })()
+      );
+
+      function setColor(color) {
+        picker.setAttribute('style', 'background-color: ' + color);
+      }
+
+      function isEyeDropperSupported() {
+        return 'EyeDropper' in window;
+      }
+    </script>
+  </body>
+</html>
